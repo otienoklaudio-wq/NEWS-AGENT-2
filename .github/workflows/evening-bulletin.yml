@@ -1,0 +1,44 @@
+name: "📺 Evening Bulletin (7:00–7:35 PM EAT)"
+
+on:
+  # 16:00 UTC = 7:00 PM EAT (East Africa Time is UTC+3, no daylight saving)
+  schedule:
+    - cron: "0 16 * * *"
+  # Also allows you to trigger it manually from the Actions tab
+  workflow_dispatch: {}
+
+permissions:
+  contents: write   # needed so the workflow can commit the JSON summary back to the repo
+
+jobs:
+  capture-and-summarize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60   # safety cut-off
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install yt-dlp (live stream resolver) and ffmpeg (audio recorder)
+        run: |
+          pip install -U yt-dlp
+          sudo apt-get install -y ffmpeg
+
+      - name: Run pipeline — capture, transcribe, summarize
+        env:
+          GROQ_API_KEY:   ${{ secrets.GROQ_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: node scripts/run-pipeline.js "Evening Bulletin" 35 "7:00 - 7:35 PM EAT"
+
+      - name: Commit new summary to repository
+        run: |
+          git config user.name  "citizen-news-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/summaries
+          git commit -m "📺 Evening bulletin summary $(date -u +%Y-%m-%d)" || echo "Nothing new to commit"
+          git push
