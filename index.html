@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Citizen Desk — Bulletin Digest & Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Design tokens ── */
+:root {
+  --bg:        #13181F;
+  --panel:     #1B2129;
+  --panel2:    #222A34;
+  --border:    #2C3540;
+  --amber:     #E9A53E;
+  --sage:      #6FA882;
+  --coral:     #D97B5A;
+  --lavender:  #9186D4;
+  --sky:       #5899C8;
+  --bone:      #EDEAE3;
+  --muted:     #8B96A3;
+  --text-body: #C8C3BA;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--bone);font-family:'Inter',sans-serif;min-height:100vh}
+a{color:var(--lavender);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── Masthead ── */
+header{background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200}
+.masthead-inner{max-width:1100px;margin:0 auto;padding:0 28px}
+.masthead-row{display:flex;align-items:center;gap:12px;padding:16px 0}
+.live-dot{width:9px;height:9px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 3px rgba(217,123,90,.22);flex-shrink:0;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(217,123,90,.22)}50%{box-shadow:0 0 0 6px rgba(217,123,90,.08)}}
+.wordmark{font-family:'Fraunces',serif;font-weight:700;font-size:1.35rem;letter-spacing:-.01em}
+.wordmark span{color:var(--amber)}
+.header-meta{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:.73rem;color:var(--muted)}
+
+/* ── Ticker ── */
+.ticker{overflow:hidden;border-top:1px solid var(--border);background:#0E1318;white-space:nowrap}
+.ticker-track{display:inline-flex;animation:marquee 55s linear infinite;padding:9px 0}
+.ticker-track span{font-family:'IBM Plex Mono',monospace;font-size:.73rem;color:var(--amber);padding:0 26px;border-right:1px solid var(--border)}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── Tabs ── */
+.tabs{display:flex;border-top:1px solid var(--border)}
+.tab{padding:13px 22px;font-family:'IBM Plex Mono',monospace;font-size:.77rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+.tab:hover{color:var(--bone)}
+.tab.active{color:var(--bone);border-bottom-color:var(--amber)}
+
+/* ── Layout ── */
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+main{max-width:1100px;margin:0 auto;padding:36px 28px 100px}
+
+/* ── Day groups / bulletins ── */
+.day-group{margin-bottom:52px}
+.day-label{font-family:'IBM Plex Mono',monospace;font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:22px}
+.bulletin{margin-bottom:32px}
+.bulletin-header{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.bulletin-header h2{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600}
+.window-tag{font-family:'IBM Plex Mono',monospace;font-size:.71rem;color:var(--muted)}
+.stories{display:grid;gap:9px}
+
+/* ── Story card ── */
+.story{background:var(--panel);border:1px solid var(--border);border-radius:7px;padding:14px 16px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;transition:border-color .15s}
+.story:hover{border-color:#3D4D5C}
+.chip{font-family:'IBM Plex Mono',monospace;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:3px;white-space:nowrap;margin-top:3px}
+.chip[data-cat="Politics"]      {background:rgba(233,165,62,.16);color:var(--amber)}
+.chip[data-cat="Business"]      {background:rgba(111,168,130,.17);color:var(--sage)}
+.chip[data-cat="County"]        {background:rgba(139,150,163,.16);color:var(--muted)}
+.chip[data-cat="Sports"]        {background:rgba(217,123,90,.17);color:var(--coral)}
+.chip[data-cat="International"] {background:rgba(88,153,200,.17);color:var(--sky)}
+.chip[data-cat="Health"]        {background:rgba(111,168,130,.17);color:var(--sage)}
+.chip[data-cat="Security"]      {background:rgba(217,123,90,.17);color:var(--coral)}
+.chip[data-cat="Other"]         {background:rgba(139,150,163,.12);color:var(--muted)}
+.story-body h3{font-family:'Fraunces',serif;font-weight:600;font-size:.97rem;margin-bottom:5px;line-height:1.35}
+.story-body p{font-size:.85rem;line-height:1.6;color:var(--text-body)}
+
+/* ── Research cards ── */
+.research-list{display:grid;gap:18px}
+.r-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:22px 24px;transition:border-color .15s}
+.r-card:hover{border-color:#3D4D5C}
+.r-card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.mode-chip{font-family:'IBM Plex Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;padding:3px 9px;border-radius:3px;flex-shrink:0;margin-top:4px}
+.mode-chip[data-mode="topic"]    {background:rgba(145,134,212,.2);color:var(--lavender)}
+.mode-chip[data-mode="document"] {background:rgba(233,165,62,.16);color:var(--amber)}
+.mode-chip[data-mode="research"] {background:rgba(111,168,130,.17);color:var(--sage)}
+.r-card h3{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;line-height:1.35}
+.r-meta{font-family:'IBM Plex Mono',monospace;font-size:.71rem;color:var(--muted);margin-bottom:12px}
+.r-summary{font-size:.86rem;line-height:1.65;color:var(--text-body);margin-bottom:16px}
+
+/* ── Expand/collapse ── */
+.expand-btn{background:none;border:1px solid var(--border);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.71rem;padding:6px 12px;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:color .15s,border-color .15s;margin-right:8px;margin-bottom:8px}
+.expand-btn:hover{color:var(--bone);border-color:var(--amber)}
+.expand-panel{display:none;margin-top:16px}
+.expand-panel.open{display:block}
+
+/* ── Expand panel internals ── */
+.section-title{font-family:'IBM Plex Mono',monospace;font-size:.71rem;text-transform:uppercase;letter-spacing:.07em;color:var(--amber);margin-bottom:10px;margin-top:18px}
+.section-title:first-child{margin-top:0}
+
+.gap-item{border-left:3px solid var(--sage);padding:10px 14px;margin-bottom:10px;background:rgba(111,168,130,.07);border-radius:0 5px 5px 0}
+.gap-item h4{font-size:.88rem;font-weight:600;margin-bottom:4px}
+.gap-item p{font-size:.82rem;line-height:1.55;color:var(--text-body)}
+.gap-item .method{font-family:'IBM Plex Mono',monospace;font-size:.71rem;color:var(--sage);margin-top:6px}
+
+.provision-item{padding:9px 0;border-bottom:1px solid var(--border)}
+.provision-item:last-child{border-bottom:none}
+.provision-item h4{font-size:.87rem;font-weight:600;margin-bottom:3px}
+.provision-item p{font-size:.82rem;line-height:1.55;color:var(--text-body)}
+
+.finding-item{padding:8px 12px;background:rgba(255,255,255,.03);border-radius:5px;margin-bottom:7px}
+.finding-item p{font-size:.84rem;line-height:1.5;color:var(--text-body)}
+.finding-item .src{font-family:'IBM Plex Mono',monospace;font-size:.69rem;color:var(--muted);margin-top:4px}
+
+.paper-item{padding:9px 12px;background:rgba(255,255,255,.03);border-radius:5px;margin-bottom:7px}
+.paper-item a{font-size:.84rem}
+.paper-meta{font-family:'IBM Plex Mono',monospace;font-size:.69rem;color:var(--muted);margin-top:3px}
+.paper-focus{font-size:.81rem;line-height:1.5;color:var(--text-body);margin-top:4px}
+
+.next-study{background:rgba(145,134,212,.1);border:1px solid rgba(145,134,212,.3);border-radius:6px;padding:12px 15px}
+.next-study p{font-size:.86rem;line-height:1.6;color:var(--bone)}
+
+/* ── Empty state ── */
+.empty{text-align:center;padding:90px 20px;color:var(--muted)}
+.empty h2{font-family:'Fraunces',serif;color:var(--bone);font-size:1.35rem;font-weight:600;margin-bottom:10px}
+.empty p{font-size:.9rem;max-width:440px;margin:0 auto;line-height:1.7}
+
+/* ── Responsive ── */
+@media(max-width:620px){
+  .story{grid-template-columns:1fr}
+  .masthead-row{flex-wrap:wrap}
+  .header-meta{margin-left:0;width:100%}
+  main{padding:24px 16px 80px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="masthead-inner">
+    <div class="masthead-row">
+      <span class="live-dot"></span>
+      <span class="wordmark">CITIZEN <span>DESK</span></span>
+      <span class="header-meta" id="hdr-meta">loading…</span>
+    </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="news">📺 &nbsp;News Bulletins</div>
+      <div class="tab"        data-tab="research">🔬 &nbsp;Research Reports</div>
+    </div>
+  </div>
+  <div class="ticker"><div class="ticker-track" id="ticker">
+    <span>Citizen Desk — loading latest headlines…</span>
+    <span>Citizen Desk — loading latest headlines…</span>
+  </div></div>
+</header>
+
+<main>
+  <div id="pane-news"     class="tab-pane active"></div>
+  <div id="pane-research" class="tab-pane"></div>
+</main>
+
+<script>
+/* ── Tabs ── */
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('pane-' + t.dataset.tab).classList.add('active');
+}));
+
+/* ── Expand/collapse ── */
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.expand-btn');
+  if (!btn) return;
+  const panel = document.getElementById(btn.dataset.target);
+  if (!panel) return;
+  const open = panel.classList.toggle('open');
+  btn.textContent = open ? '▲ Hide' : '▼ ' + btn.dataset.label;
+});
+
+/* ── Helpers ── */
+function fmtDate(d) {
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-GB',
+    { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+function fmtTime(iso) {
+  return new Date(iso).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+}
+async function fetchJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('Not found: ' + url);
+  return r.json();
+}
+
+/* ── News bulletins ── */
+async function loadNews() {
+  const pane = document.getElementById('pane-news');
+  try {
+    const files = await fetchJSON('data/summaries/index.json');
+    if (!files.length) throw new Error('empty');
+
+    const records = await Promise.all(files.map(f => fetchJSON('data/summaries/' + f)));
+
+    // Update ticker
+    const headlines = records.flatMap(r => (r.stories||[]).map(s => s.headline));
+    if (headlines.length) {
+      const doubled = [...headlines,...headlines];
+      document.getElementById('ticker').innerHTML = doubled.map(h=>`<span>${h}</span>`).join('');
+    }
+    document.getElementById('hdr-meta').textContent =
+      records.length + ' bulletin' + (records.length===1?'':'s') + ' on record';
+
+    // Group by date
+    const byDate = {};
+    records.forEach(r => { (byDate[r.date]||(byDate[r.date]=[])).push(r); });
+    const dates = Object.keys(byDate).sort().reverse();
+
+    pane.innerHTML = dates.map(date => `
+      <section class="day-group">
+        <div class="day-label">${fmtDate(date)}</div>
+        ${byDate[date].map(r => `
+          <div class="bulletin">
+            <div class="bulletin-header">
+              <h2>${r.bulletin}</h2>
+              <span class="window-tag">${r.window}</span>
+            </div>
+            <div class="stories">
+              ${(r.stories||[]).map(s => `
+                <div class="story">
+                  <span class="chip" data-cat="${s.category}">${s.category}</span>
+                  <div class="story-body">
+                    <h3>${s.headline}</h3>
+                    <p>${s.summary}</p>
+                  </div>
+                </div>`).join('')}
+            </div>
+          </div>`).join('')}
+      </section>`).join('');
+
+  } catch {
+    pane.innerHTML = `<div class="empty">
+      <h2>No bulletins yet</h2>
+      <p>The pipelines run automatically at 7:00 PM and 9:00 PM EAT daily.<br>
+      You can also trigger them manually under the GitHub Actions tab.</p>
+    </div>`;
+  }
+}
+
+/* ── Research reports ── */
+async function loadResearch() {
+  const pane = document.getElementById('pane-research');
+  try {
+    const files = await fetchJSON('data/research/index.json');
+    if (!files.length) throw new Error('empty');
+
+    const records = await Promise.all(files.map(f => fetchJSON('data/research/' + f)));
+
+    pane.innerHTML = '<div class="research-list">' + records.map((r, i) => {
+      const id = 'rc' + i;
+      let buttons = '', panels = '';
+
+      /* Research gaps panel */
+      if (r.mode === 'research' && r.research_gaps?.length) {
+        const pid = id + '-gaps';
+        buttons += `<button class="expand-btn" data-target="${pid}" data-label="Research Gaps (${r.research_gaps.length})">▼ Research Gaps (${r.research_gaps.length})</button>`;
+        panels  += `<div id="${pid}" class="expand-panel">
+          <div class="section-title">Research Gaps Identified</div>
+          ${r.research_gaps.map(g=>`
+            <div class="gap-item">
+              <h4>${g.gap}</h4>
+              <p>${g.justification}</p>
+              <div class="method">💡 Suggested method: ${g.suggested_methodology}</div>
+            </div>`).join('')}
+          ${r.recommended_next_study?`
+            <div class="section-title">Recommended Next Study</div>
+            <div class="next-study"><p>${r.recommended_next_study}</p></div>`:''}
+          ${r.papers_found?.length?`
+            <div class="section-title">Papers Reviewed (${r.papers_found.length})</div>
+            ${r.papers_found.map(p=>`
+              <div class="paper-item">
+                <a href="${p.url||'#'}" target="_blank" rel="noreferrer">${p.title}</a>
+                <div class="paper-meta">${p.authors||''}${p.year?' · '+p.year:''} · ${p.source||''}</div>
+                <div class="paper-focus">${p.focus||''}</div>
+              </div>`).join('')}`:''}
+          ${r.themes_covered?.length?`
+            <div class="section-title">Themes Already Covered</div>
+            ${r.themes_covered.map(t=>`<div class="finding-item"><p>${t}</p></div>`).join('')}`:''}
+        </div>`;
+      }
+
+      /* Key provisions panel (document mode) */
+      if (r.mode === 'document' && r.key_provisions?.length) {
+        const pid = id + '-prov';
+        buttons += `<button class="expand-btn" data-target="${pid}" data-label="Key Provisions (${r.key_provisions.length})">▼ Key Provisions (${r.key_provisions.length})</button>`;
+        panels  += `<div id="${pid}" class="expand-panel">
+          <div class="section-title">Key Provisions</div>
+          ${r.key_provisions.map(p=>`<div class="provision-item"><h4>${p.title}</h4><p>${p.detail}</p></div>`).join('')}
+          ${r.potential_impact?.length?`
+            <div class="section-title">Potential Impact by Sector</div>
+            ${r.potential_impact.map(p=>`<div class="provision-item"><h4>${p.sector}</h4><p>${p.impact}</p></div>`).join('')}`:''}
+          ${r.controversies_or_gaps?.length?`
+            <div class="section-title">Controversies &amp; Gaps</div>
+            ${r.controversies_or_gaps.map(c=>`<div class="finding-item"><p>⚠️ ${c}</p></div>`).join('')}`:''}
+          ${r.external_commentary?.length?`
+            <div class="section-title">External Commentary</div>
+            ${r.external_commentary.map(c=>`<div class="finding-item"><p><strong>${c.source}</strong> <em>(${c.stance})</em> — ${c.summary}</p></div>`).join('')}`:''}
+        </div>`;
+      }
+
+      /* Key findings panel (topic mode) */
+      if (r.mode === 'topic' && r.key_findings?.length) {
+        const pid = id + '-find';
+        buttons += `<button class="expand-btn" data-target="${pid}" data-label="Key Findings (${r.key_findings.length})">▼ Key Findings (${r.key_findings.length})</button>`;
+        panels  += `<div id="${pid}" class="expand-panel">
+          <div class="section-title">Key Findings</div>
+          ${r.key_findings.map(f=>`
+            <div class="finding-item">
+              <p>${f.point}</p>
+              <div class="src">Source: ${f.source||'—'}</div>
+            </div>`).join('')}
+          ${r.credibility_note?`
+            <div class="section-title">Source Credibility Note</div>
+            <div class="finding-item"><p>${r.credibility_note}</p></div>`:''}
+        </div>`;
+      }
+
+      return `
+        <div class="r-card">
+          <div class="r-card-top">
+            <span class="mode-chip" data-mode="${r.mode}">${r.mode}</span>
+            <h3>${r.label||r.title||r.topic||r.input}</h3>
+          </div>
+          <div class="r-meta">${fmtDate(r.date)} · Generated at ${fmtTime(r.generated_at)} EAT</div>
+          <div class="r-summary">${r.executive_summary||r.literature_summary||r.overall_assessment||''}</div>
+          ${buttons}
+          ${panels}
+        </div>`;
+    }).join('') + '</div>';
+
+  } catch {
+    pane.innerHTML = `<div class="empty">
+      <h2>No research reports yet</h2>
+      <p>Go to your GitHub repository → <strong>Actions</strong> tab → <strong>🔬 Research Agent</strong> → <strong>Run workflow</strong>.<br><br>
+      Enter a topic, a document URL, or a research subject and the report will appear here within a few minutes.</p>
+    </div>`;
+  }
+}
+
+loadNews();
+loadResearch();
+</script>
+</body>
+</html>

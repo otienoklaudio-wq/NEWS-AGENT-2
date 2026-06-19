@@ -1,0 +1,59 @@
+name: "🔬 Research Agent"
+
+on:
+  # This workflow is ONLY triggered manually — you fill in the inputs each time.
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "What kind of research?"
+        required: true
+        type: choice
+        options:
+          - topic       # General topic research with web sources
+          - document    # Analyse a document at a URL (bill, manifesto, report)
+          - research    # Find academic papers and identify research gaps
+        default: topic
+
+      input:
+        description: "Topic, document URL, or research subject"
+        required: true
+        type: string
+
+      label:
+        description: "Short name for the report (shown on dashboard)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Research Agent
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          node scripts/research-agent.js \
+            --mode  "${{ github.event.inputs.mode }}" \
+            --input "${{ github.event.inputs.input }}" \
+            --label "${{ github.event.inputs.label }}"
+
+      - name: Commit research report to repository
+        run: |
+          git config user.name  "citizen-news-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/research
+          git commit -m "🔬 Research: ${{ github.event.inputs.label }} ($(date -u +%Y-%m-%d))" || echo "Nothing new to commit"
+          git push

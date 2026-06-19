@@ -1,0 +1,11 @@
+{
+  "name": "citizen-news-agent",
+  "version": "2.0.0",
+  "description": "Captures Citizen TV Kenya bulletins, transcribes and summarizes them, and runs AI research — all 100% free.",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "evening": "node scripts/run-pipeline.js \"Evening Bulletin\" 35 \"7:00 - 7:35 PM EAT\"",
+    "night":   "node scripts/run-pipeline.js \"Night News\" 70 \"9:00 - 10:10 PM EAT\""
+  }
+}
