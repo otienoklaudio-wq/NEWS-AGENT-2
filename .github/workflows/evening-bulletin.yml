@@ -29,10 +29,14 @@ jobs:
           pip install -U yt-dlp
           sudo apt-get install -y ffmpeg
 
+      - name: Write YouTube cookies
+        run: echo "${{ secrets.YOUTUBE_COOKIES }}" > /tmp/yt-cookies.txt
+
       - name: Run pipeline — capture, transcribe, summarize
         env:
           GROQ_API_KEY:   ${{ secrets.GROQ_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          YT_COOKIES_PATH: /tmp/yt-cookies.txt
         run: node scripts/run-pipeline.js "Evening Bulletin" 35 "7:00 - 7:35 PM EAT"
 
       - name: Commit new summary to repository
