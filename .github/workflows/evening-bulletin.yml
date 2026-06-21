@@ -25,6 +25,7 @@ jobs:
       - name: Install yt-dlp and ffmpeg
         run: |
           pip install -U yt-dlp
+          pip install -U yt-dlp-plugins
           sudo apt-get install -y ffmpeg
 
       - name: Write YouTube cookies
