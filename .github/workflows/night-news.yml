@@ -1,19 +1,17 @@
 name: "📺 Night News (9:00–10:10 PM EAT)"
 
 on:
-  # 18:00 UTC = 9:00 PM EAT (East Africa Time is UTC+3, no daylight saving)
   schedule:
     - cron: "0 18 * * *"
-  # Also allows you to trigger it manually from the Actions tab
   workflow_dispatch: {}
 
 permissions:
-  contents: write   # needed so the workflow can commit the JSON summary back to the repo
+  contents: write
 
 jobs:
   capture-and-summarize:
     runs-on: ubuntu-latest
-    timeout-minutes: 90   # safety cut-off
+    timeout-minutes: 90
 
     steps:
       - name: Checkout repository
@@ -24,21 +22,27 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install yt-dlp (live stream resolver) and ffmpeg (audio recorder)
+      - name: Install yt-dlp and ffmpeg
         run: |
           pip install -U yt-dlp
           sudo apt-get install -y ffmpeg
 
+      - name: Write YouTube cookies
+        env:
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
+        run: echo "$YOUTUBE_COOKIES" > /tmp/yt-cookies.txt
+
       - name: Run pipeline — capture, transcribe, summarize
         env:
-          GROQ_API_KEY:   ${{ secrets.GROQ_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          YT_COOKIES_PATH: /tmp/yt-cookies.txt
         run: node scripts/run-pipeline.js "Night News" 70 "9:00 - 10:10 PM EAT"
 
-      - name: Commit new summary to repository
+      - name: Commit summary to repository
         run: |
-          git config user.name  "citizen-news-bot"
+          git config user.name "citizen-news-bot"
           git config user.email "bot@users.noreply.github.com"
           git add data/summaries
-          git commit -m "📺 Night news summary $(date -u +%Y-%m-%d)" || echo "Nothing new to commit"
+          git commit -m "Night news summary $(date -u +%Y-%m-%d)" || echo "Nothing to commit"
           git push
