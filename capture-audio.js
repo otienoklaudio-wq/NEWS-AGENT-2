@@ -24,12 +24,14 @@ function getLiveStreamUrl() {
  * Groq Whisper's 25 MB file limit.
  */
 export function captureAudio(outputPath, durationSeconds) {
+  const cookiesArg = process.env.YT_COOKIES_PATH
+    ? `--cookies "${process.env.YT_COOKIES_PATH}"`
+    : "";
   const streamUrl = getLiveStreamUrl();
-  console.log(`Recording ${Math.round(durationSeconds / 60)} minutes of audio...`);
+  console.log(`Recording ${Math.round(durationSeconds / 60)} minutes...`);
   execSync(
     `ffmpeg -y -i "${streamUrl}" -t ${durationSeconds} -vn -ac 1 -ar 16000 -ab 32k "${outputPath}"`,
     { stdio: "inherit", maxBuffer: 1024 * 1024 * 100 }
   );
-  console.log(`Audio saved to ${outputPath}`);
   return outputPath;
 }
