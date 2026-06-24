@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install yt-dlp and ffmpeg
+      - name: Install yt-dlp, yt-dlp-plugins and ffmpeg
         run: |
           pip install -U yt-dlp
           pip install -U yt-dlp-plugins
@@ -31,7 +31,13 @@ jobs:
       - name: Write YouTube cookies
         env:
           YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
-        run: echo "$YOUTUBE_COOKIES" > /tmp/yt-cookies.txt
+        run: |
+          if [ -z "$YOUTUBE_COOKIES" ]; then
+            echo "Warning: YOUTUBE_COOKIES secret not set"
+            touch /tmp/yt-cookies.txt
+          else
+            echo "$YOUTUBE_COOKIES" > /tmp/yt-cookies.txt
+          fi
 
       - name: Run pipeline — capture, transcribe, summarize
         env:
